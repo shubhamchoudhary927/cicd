@@ -46,7 +46,7 @@ export default function Home() {
         <ul style={styles.list}>
           <li>✓ Code committed to repository</li>
           <li>✓ Automated build completed</li>
-          <li>✓ Tests passed</li>
+          <li>✓ Tests pass</li>
           <li>✓ Deployed to production server</li>
         </ul>
       </div>
