@@ -9,6 +9,12 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/yourusername/your-repo.git'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh 'docker run --rm -v $PWD:/app -w /app node:20 npm install'
