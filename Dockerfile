@@ -1,23 +1,23 @@
-# Base image
-FROM node:20
+# Stage 1: Build
+FROM node:20-alpine AS builder
 
-# Working directory
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy project files
 COPY . .
-
-# Build Next.js app
 RUN npm run build
 
-# Expose port
+# Stage 2: Production
+FROM node:20-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app ./
+
 EXPOSE 3000
 
-# Start app
 CMD ["npm", "start"]
