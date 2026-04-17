@@ -1,65 +1,122 @@
-import Image from "next/image";
+// src/app/page.js
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from "next/link";
 
 export default function Home() {
+  const [deployTime, setDeployTime] = useState('')
+  const [status, setStatus] = useState('loading')
+
+  useEffect(() => {
+    setDeployTime(new Date().toLocaleString())
+    
+    // Check health status
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => setStatus(data.status))
+      .catch(() => setStatus('error'))
+  }, [])
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+
+    
+    <main style={styles.container}>
+      <h1 style={styles.title}>🚀 CI/CD Deployment Demo</h1>
+      <p style={styles.subtitle}>Successfully deployed with automated pipeline!</p>
+
+
+
+       <div style={{ marginBottom: "20px" }}>
+        <Link href="/about">
+          <button style={styles.button}>About Us</button>
+        </Link>
+      </div>
+      
+      <div style={styles.card}>
+        <h2>📋 Deployment Information</h2>
+        <p><strong>Status:</strong> <span style={{color: '#28a745'}}>● Live</span></p>
+        <p><strong>Deployed at:</strong> {deployTime || 'Loading...'}</p>
+        <p><strong>Environment:</strong> Production</p>
+        <p><strong>Health Check:</strong> {status === 'healthy' ? '✅ Passing' : '⏳ Checking...'}</p>
+      </div>
+
+      <div style={styles.card}>
+        <h2>✅ CI/CD Pipeline Status</h2>
+        <ul style={styles.list}>
+          <li>✓ Code committed to repository</li>
+          <li>✓ Automated build completed</li>
+          <li>✓ Tests passed</li>
+          <li>✓ Deployed to production server</li>
+        </ul>
+      </div>
+
+      <div style={styles.card}>
+        <h2>🔄 Quick Actions</h2>
+        <button onClick={() => window.location.reload()} style={styles.button}>
+          Refresh Page
+        </button>
+        <button onClick={() => fetch('/api/health').then(res => res.json()).then(data => alert('Status: ' + data.status))} style={{...styles.button, ...styles.buttonSecondary}}>
+          Check Health
+        </button>
+      </div>
+
+      <footer style={styles.footer}>
+        <p>Powered by Next.js | CI/CD Ready</p>
+      </footer>
+    </main>
+  )
+}
+
+const styles = {
+  container: {
+    maxWidth: '800px',
+    margin: '50px auto',
+    padding: '20px',
+    fontFamily: 'Arial, sans-serif',
+    textAlign: 'center',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    minHeight: '100vh',
+    borderRadius: '10px'
+  },
+  title: {
+    color: '#fff',
+    fontSize: '2.5rem',
+    marginBottom: '10px'
+  },
+  subtitle: {
+    color: '#fff',
+    fontSize: '1.2rem',
+    marginBottom: '30px'
+  },
+  card: {
+    background: 'white',
+    borderRadius: '10px',
+    padding: '20px',
+    margin: '20px 0',
+    textAlign: 'left',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+  },
+  list: {
+    listStyle: 'none',
+    padding: 0
+  },
+  button: {
+    background: '#0070f3',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    marginRight: '10px'
+  },
+  buttonSecondary: {
+    background: '#6c757d'
+  },
+  footer: {
+    marginTop: '40px',
+    color: '#fff',
+    fontSize: '14px'
+  }
 }
