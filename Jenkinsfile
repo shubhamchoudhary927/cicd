@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)   // 👈 VERY IMPORTANT
+    }
+
     environment {
         IMAGE_NAME = "cicd-app"
         CONTAINER_NAME = "cicd-app"
@@ -11,7 +15,15 @@ pipeline {
 
         stage('Checkout') {
             steps {
+                cleanWs()   // 👈 workspace साफ
                 git branch: 'master', url: 'https://github.com/shubhamchoudhary927/hy.git'
+            }
+        }
+
+        stage('Debug') {
+            steps {
+                sh 'pwd'
+                sh 'ls -l'
             }
         }
 
