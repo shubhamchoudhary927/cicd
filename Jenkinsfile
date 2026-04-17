@@ -1,21 +1,16 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20'
-            args '-u root:root'
-        }
-    }
+    agent any
 
     stages {
         stage('Install') {
             steps {
-                sh 'npm install'
+                sh 'docker run --rm -v $PWD:/app -w /app node:20 npm install'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                sh 'docker run --rm -v $PWD:/app -w /app node:20 npm run build'
             }
         }
 
