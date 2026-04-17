@@ -14,7 +14,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '--- Code checkout kar raha hoon ---'
-                git branch: 'main',
+                git branch: 'master',
                     url: "${GIT_REPO}"
             }
         }
