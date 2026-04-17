@@ -28,17 +28,16 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            steps {
-                sh 'docker run --rm -v $PWD:/app -w /app node:20 npm install'
-            }
-        }
+    steps {
+        sh 'docker run --rm -v /var/jenkins_home/workspace/cicd_app:/app -w /app node:20 npm install'
+    }
+}
 
-        stage('Build App') {
-            steps {
-                sh 'docker run --rm -v $PWD:/app -w /app node:20 npm run build'
-            }
-        }
-
+stage('Build App') {
+    steps {
+        sh 'docker run --rm -v /var/jenkins_home/workspace/cicd_app:/app -w /app node:20 npm run build'
+    }
+}
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME:$BUILD_NUMBER .'
