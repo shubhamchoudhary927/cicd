@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "cicd-app"
         CONTAINER_NAME = "cicd-app"
         PORT = "3000"
-        APP_DIR = "cicd_app"   // 👈 ये important है
+        APP_DIR = "cicd_app"
     }
 
     stages {
@@ -38,20 +38,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                echo "Stopping old container..."
                 docker rm -f $CONTAINER_NAME || true
-
-                echo "Running new container..."
                 docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $IMAGE_NAME:$BUILD_NUMBER
-                '''
-            }
-        }
-
-        stage('Cleanup Old Images') {
-            steps {
-                sh '''
-                echo "Cleaning unused images..."
-                docker image prune -f
                 '''
             }
         }
