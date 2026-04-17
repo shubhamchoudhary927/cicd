@@ -22,7 +22,7 @@ export default function Home() {
 
     
     <main style={styles.container}>
-      <h1 style={styles.title}>🚀 CI/CD Deployment Demo</h1>
+      <h1 style={styles.title}> CI/CD Deployment Demo</h1>
       <p style={styles.subtitle}>Successfully deployed with automated pipeline!</p>
 
 
