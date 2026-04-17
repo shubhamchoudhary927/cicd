@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = "cicd-app"
         CONTAINER_NAME = "cicd-app"
         PORT = "3000"
+        APP_DIR = "cicd_app"   // 👈 ये important है
     }
 
     stages {
@@ -17,19 +18,19 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'docker run --rm -v $PWD:/app -w /app node:20 npm install'
+                sh 'docker run --rm -v $PWD:/app -w /app/$APP_DIR node:20 npm install'
             }
         }
 
         stage('Build App') {
             steps {
-                sh 'docker run --rm -v $PWD:/app -w /app node:20 npm run build'
+                sh 'docker run --rm -v $PWD:/app -w /app/$APP_DIR node:20 npm run build'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$BUILD_NUMBER .'
+                sh 'cd $APP_DIR && docker build -t $IMAGE_NAME:$BUILD_NUMBER .'
                 sh 'docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest'
             }
         }
