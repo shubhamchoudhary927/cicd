@@ -1,57 +1,73 @@
 pipeline {
     agent any
 
-    options {
-        skipDefaultCheckout(true)   // 👈 VERY IMPORTANT
-    }
-
     environment {
-        IMAGE_NAME = "cicd-app"
-        CONTAINER_NAME = "cicd-app"
-        PORT = "3000"
+        APP_NAME = 'cicd-app'
+        IMAGE_NAME = 'cicd-nextjs'
+        CONTAINER_NAME = 'cicd-nextjs-container'
+        APP_PORT = '3000'
+        GIT_REPO = 'https://github.com/shubhamchoudhary927/cicd.git'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                cleanWs()   // 👈 workspace साफ
-                git branch: 'master', url: 'https://github.com/shubhamchoudhary927/hy.git'
-            }
-        }
-
-        stage('Debug') {
-            steps {
-                sh 'pwd'
-                sh 'ls -l'
+                echo '--- Code checkout kar raha hoon ---'
+                git branch: 'main',
+                    url: "${GIT_REPO}"
             }
         }
 
         stage('Install Dependencies') {
-    steps {
-        sh 'docker run --rm -v /var/jenkins_home/workspace/cicd_app:/app -w /app node:20 npm install'
-    }
-}
-
-stage('Build App') {
-    steps {
-        sh 'docker run --rm -v /var/jenkins_home/workspace/cicd_app:/app -w /app node:20 npm run build'
-    }
-}
-        stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$BUILD_NUMBER .'
-                sh 'docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest'
+                echo '--- npm install chal raha hai ---'
+                sh 'npm ci'
             }
         }
 
-        stage('Deploy Container') {
+        stage('Build') {
             steps {
+                echo '--- Next.js build ho raha hai ---'
+                sh 'npm run build'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                echo '--- Docker image ban rahi hai ---'
                 sh '''
-                docker rm -f $CONTAINER_NAME || true
-                docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $IMAGE_NAME:$BUILD_NUMBER
+                    docker build -t ${IMAGE_NAME}:latest .
                 '''
             }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo '--- Purana container band karke naya chala raha hoon ---'
+                sh '''
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME}   || true
+
+                    docker run -d \
+                        --name ${CONTAINER_NAME} \
+                        --restart unless-stopped \
+                        -p ${APP_PORT}:3000 \
+                        ${IMAGE_NAME}:latest
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deploy successful! App chal rahi hai port ${APP_PORT} par"
+        }
+        failure {
+            echo '❌ Pipeline fail ho gayi. Logs dekho.'
+        }
+        always {
+            echo '--- Pipeline khatam ---'
         }
     }
 }
