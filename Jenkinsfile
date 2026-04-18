@@ -14,22 +14,36 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '--- Code checkout kar raha hoon ---'
-                git branch: 'master',
-                    url: "${GIT_REPO}"
+                git branch: 'master', url: "${GIT_REPO}"
+            }
+        }
+
+        stage('Check Tools') {
+            steps {
+                echo '--- Node & Docker verify ---'
+                sh '''
+                    node -v || echo "❌ Node missing"
+                    npm -v || echo "❌ npm missing"
+                    docker -v || echo "❌ Docker missing"
+                '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 echo '--- npm install chal raha hai ---'
-                sh 'npm ci'
+                sh '''
+                    npm install
+                '''
             }
         }
 
         stage('Build') {
             steps {
                 echo '--- Next.js build ho raha hai ---'
-                sh 'npm run build'
+                sh '''
+                    npm run build
+                '''
             }
         }
 
@@ -44,10 +58,10 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo '--- Purana container band karke naya chala raha hoon ---'
+                echo '--- Container restart ho raha hai ---'
                 sh '''
                     docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME}   || true
+                    docker rm ${CONTAINER_NAME} || true
 
                     docker run -d \
                         --name ${CONTAINER_NAME} \
@@ -61,13 +75,13 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deploy successful! App chal rahi hai port ${APP_PORT} par"
+            echo "✅ Deploy successful! App running on port ${APP_PORT}"
         }
         failure {
-            echo '❌ Pipeline fail ho gayi. Logs dekho.'
+            echo '❌ Pipeline fail ho gayi. Check logs carefully.'
         }
         always {
-            echo '--- Pipeline khatam ---'
+            echo '--- Pipeline finished ---'
         }
     }
 }
