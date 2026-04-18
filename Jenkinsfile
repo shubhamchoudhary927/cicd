@@ -5,7 +5,7 @@ pipeline {
         APP_NAME = 'cicd-app'
         IMAGE_NAME = 'cicd-nextjs'
         CONTAINER_NAME = 'cicd-nextjs-container'
-        APP_PORT = '3000'
+        APP_PORT = '4000'
         GIT_REPO = 'https://github.com/shubhamchoudhary927/cicd.git'
     }
 
@@ -14,36 +14,22 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '--- Code checkout kar raha hoon ---'
-                git branch: 'master', url: "${GIT_REPO}"
-            }
-        }
-
-        stage('Check Tools') {
-            steps {
-                echo '--- Node & Docker verify ---'
-                sh '''
-                    node -v || echo "❌ Node missing"
-                    npm -v || echo "❌ npm missing"
-                    docker -v || echo "❌ Docker missing"
-                '''
+                git branch: 'master',
+                    url: "${GIT_REPO}"
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 echo '--- npm install chal raha hai ---'
-                sh '''
-                    npm install
-                '''
+                sh 'npm ci'
             }
         }
 
         stage('Build') {
             steps {
                 echo '--- Next.js build ho raha hai ---'
-                sh '''
-                    npm run build
-                '''
+                sh 'npm run build'
             }
         }
 
@@ -58,10 +44,10 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo '--- Container restart ho raha hai ---'
+                echo '--- Purana container band karke naya chala raha hoon ---'
                 sh '''
                     docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME}   || true
 
                     docker run -d \
                         --name ${CONTAINER_NAME} \
@@ -75,13 +61,13 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deploy successful! App running on port ${APP_PORT}"
+            echo "✅ Deploy successful! App chal rahi hai port ${APP_PORT} par"
         }
         failure {
-            echo '❌ Pipeline fail ho gayi. Check logs carefully.'
+            echo '❌ Pipeline fail ho gayi. Logs dekho.'
         }
         always {
-            echo '--- Pipeline finished ---'
+            echo '--- Pipeline khatam ---'
         }
     }
 }
